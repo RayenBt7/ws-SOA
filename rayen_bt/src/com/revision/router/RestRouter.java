@@ -1,0 +1,155 @@
+package com.revision.router;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import com.revision.entities.Client;
+import com.revision.entities.Commande;
+import com.revision.service.ClientServiceImpl;
+import com.revision.service.CommandeServiceImpl;
+
+@Path("/")
+public class RestRouter {
+	ClientServiceImpl cl_s = new ClientServiceImpl();
+	CommandeServiceImpl cmd_s = new CommandeServiceImpl();
+
+	// Existing endpoints for clients and orders
+	@Path("/add/client")
+	@POST
+	@Consumes("application/json")
+	@Produces("application/json")
+	public Response addClient(Client client) {
+		Map<String, String> result = cl_s.addClient(client);
+		if ("OK".equals(result.get("Status"))) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@Path("/clients/{idClient}/commandes")
+	@POST
+	@Consumes("application/json")
+	public Response addCommande(Commande cmd, @PathParam("idClient") Long client_id) {
+		boolean success = cmd_s.addCommande(cmd, client_id);
+		if (success) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@Path("/clients/{idClient}/commandes")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Commande> getCommandes(@PathParam("idClient") Long idClient) {
+		List<Commande> liste = cmd_s.getCommandes(idClient);
+		for(Commande cmd: liste) {
+			cmd.toString();
+		}
+		return liste;
+	}
+
+	@Path("/commandes/{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateCommande(@PathParam("id") Long id, Commande cmd) {
+		cmd.setId(id);
+		boolean success = cmd_s.updateCommande(cmd);
+		if (success) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@Path("/commandes/{id}")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteCommande(@PathParam("id") Long id) {
+		boolean success = cmd_s.deleteCommande(id);
+		if (success) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+
+	// New endpoints for persons
+	@Path("/persons")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Client> getAllPersons() {
+		return cl_s.getAllClients();
+	}
+
+	@Path("/persons/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPersonById(@PathParam("id") Long id) {
+		Client client = cl_s.getClientById(id);
+		if (client != null) {
+			return Response.ok(client).build();
+		} else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+
+	@Path("/persons/search/{nom}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Client> searchPersonsByName(@PathParam("nom") String nom) {
+		return cl_s.searchClientsByName(nom);
+	}
+
+	@Path("/persons")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addPerson(Client client) {
+		Map<String, String> result = cl_s.addClient(client);
+		if ("OK".equals(result.get("Status"))) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@Path("/persons/{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updatePerson(@PathParam("id") Long id, Client client) {
+		client.setId(id);
+		Map<String, String> result = cl_s.updateClient(client);
+		if ("OK".equals(result.get("Status"))) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@Path("/persons/{id}")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deletePerson(@PathParam("id") Long id) {
+		Map<String, String> result = cl_s.deleteClient(id);
+		if ("OK".equals(result.get("Status"))) {
+			return Response.ok().build();
+		} else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+}

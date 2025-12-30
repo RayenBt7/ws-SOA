@@ -1,0 +1,107 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import CommandeForm from './CommandeForm';
+import './CommandeList.css';
+
+const API_BASE_URL = '/tp_revision/exercice/revision'; // Using proxy for development
+
+function CommandeList({ clientId, onBack }) {
+  const [commandes, setCommandes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingCommande, setEditingCommande] = useState(null);
+
+  useEffect(() => {
+    fetchCommandes();
+  }, [clientId]);
+
+  const fetchCommandes = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/clients/${clientId}/commandes`);
+      setCommandes(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch orders');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      try {
+        await axios.delete(`${API_BASE_URL}/commandes/${id}`);
+        fetchCommandes();
+      } catch (err) {
+        setError('Failed to delete order');
+        console.error(err);
+      }
+    }
+  };
+
+  const handleAddCommande = () => {
+    setEditingCommande(null);
+    setShowForm(true);
+  };
+
+  const handleEditCommande = (commande) => {
+    setEditingCommande(commande);
+    setShowForm(true);
+  };
+
+  const handleSaveCommande = () => {
+    setShowForm(false);
+    setEditingCommande(null);
+    fetchCommandes();
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingCommande(null);
+  };
+
+  if (loading) return <div className="loading">Loading orders...</div>;
+  if (error) return <div className="error">{error}</div>;
+
+  return (
+    <div className="commande-list-container">
+      <div className="header">
+        <button onClick={onBack} className="back-btn">← Back to Clients</button>
+        <h2>Orders Management</h2>
+        <button onClick={handleAddCommande} className="add-btn">Add Order</button>
+      </div>
+      <div className="commande-grid">
+        {commandes.length === 0 ? (
+          <div className="no-commandes">No orders found for this client.</div>
+        ) : (
+          commandes.map(commande => (
+            <div key={commande.id} className="commande-card">
+              <h3>Order #{commande.id}</h3>
+              <p><strong>Description:</strong> {commande.description}</p>
+              <p><strong>Amount:</strong> ${commande.montant}</p>
+              <p><strong>Total with TVA:</strong> ${commande.totalAvecTVA?.toFixed(2)}</p>
+              <div className="card-actions">
+                <button onClick={() => handleEditCommande(commande)} className="edit-btn">Edit</button>
+                <button onClick={() => handleDelete(commande.id)} className="delete-btn">Delete</button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {showForm && (
+        <CommandeForm
+          commande={editingCommande}
+          clientId={clientId}
+          onSave={handleSaveCommande}
+          onCancel={handleCancelForm}
+        />
+      )}
+    </div>
+  );
+}
+
+export default CommandeList;

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client and Order Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Client and Order Management</h1>
+
+    <!-- Add Client -->
+    <section id="add-client">
+        <h2>Add Client</h2>
+        <form id="client-form">
+            <label for="cin">CIN:</label>
+            <input type="text" id="cin" required><br>
+            <label for="nom">Name:</label>
+            <input type="text" id="nom" required><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required><br>
+            <label for="civilite">Civility:</label>
+            <select id="civilite" required>
+                <option value="MS">MS</option>
+                <option value="MR">MR</option>
+            </select><br>
+            <button type="submit">Add Client</button>
+        </form>
+    </section>
+
+    <!-- Add Order -->
+    <section id="add-order">
+        <h2>Add Order</h2>
+        <form id="order-form">
+            <label for="client-id">Client ID:</label>
+            <input type="number" id="client-id" required><br>
+            <label for="description">Description:</label>
+            <textarea id="description" required></textarea><br>
+            <label for="montant">Amount:</label>
+            <input type="number" step="0.01" id="montant" required><br>
+            <button type="submit">Add Order</button>
+        </form>
+    </section>
+
+    <!-- View Orders -->
+    <section id="view-orders">
+        <h2>View Orders</h2>
+        <label for="view-client-id">Client ID:</label>
+        <input type="number" id="view-client-id" required>
+        <button id="view-orders-btn">View Orders</button>
+        <div id="orders-list"></div>
+    </section>
+
+    <!-- Persons Management -->
+    <section id="persons">
+        <h2>Persons Management</h2>
+
+        <h3>List All Persons</h3>
+        <button id="list-persons-btn">List All Persons</button>
+        <div id="persons-list"></div>
+
+        <h3>Get Person by ID</h3>
+        <label for="person-id">Person ID:</label>
+        <input type="number" id="person-id" required>
+        <button id="get-person-btn">Get Person</button>
+        <div id="person-details"></div>
+
+        <h3>Search Persons by Name</h3>
+        <label for="search-nom">Name:</label>
+        <input type="text" id="search-nom" required>
+        <button id="search-persons-btn">Search</button>
+        <div id="search-results"></div>
+
+        <h3>Update Person</h3>
+        <form id="update-person-form">
+            <label for="update-id">ID:</label>
+            <input type="number" id="update-id" required><br>
+            <label for="update-cin">CIN:</label>
+            <input type="text" id="update-cin" required><br>
+            <label for="update-nom">Name:</label>
+            <input type="text" id="update-nom" required><br>
+            <label for="update-email">Email:</label>
+            <input type="email" id="update-email" required><br>
+            <label for="update-civilite">Civility:</label>
+            <select id="update-civilite" required>
+                <option value="MS">MS</option>
+                <option value="MR">MR</option>
+            </select><br>
+            <button type="submit">Update Person</button>
+        </form>
+
+        <h3>Delete Person</h3>
+        <label for="delete-id">Person ID:</label>
+        <input type="number" id="delete-id" required>
+        <button id="delete-person-btn">Delete Person</button>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

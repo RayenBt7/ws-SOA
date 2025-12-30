@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="revision" transaction-type="RESOURCE_LOCAL">
+		<description>Hibernate Entity Manager Example</description>
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<class>com.revision.entities.Client</class>
+		<class>com.revision.entities.Commande</class>
+		<properties>
+			<!-- DRIVER CORRIGÉ pour MySQL 8+ -->
+			<property name="javax.persistence.jdbc.driver"
+				value="com.mysql.cj.jdbc.Driver" />
+			<property name="javax.persistence.jdbc.url"
+				value="jdbc:mysql://localhost:3306/exercice_revision?serverTimezone=UTC" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password" value="root" />
+			
+			<!-- Dialecte Hibernate -->
+			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+		</properties>
+	</persistence-unit>
+</persistence>
+```
+
+### **ÉTAPE 6 : Mettre à jour Maven**
+
+Dans Eclipse :
+1. Clic droit sur le projet → **Maven** → **Update Project**
+2. Cochez **Force Update of Snapshots/Releases**
+3. Cliquez **OK**
+
+### **ÉTAPE 7 : Clean et Build**
+
+1. **Project** → **Clean** → sélectionnez votre projet → **Clean**
+2. Attendez la fin de la compilation
+
+### **ÉTAPE 8 : Vérifier MySQL**
+
+Assurez-vous que :
+- ✅ MySQL est **démarré** (XAMPP, WAMP, ou service)
+- ✅ La base `exercice_revision` **existe**
+- ✅ Le port est bien **3306**
+
+### **ÉTAPE 9 : Tester**
+
+Exécutez votre classe `Test.java`. Vous devriez voir :
+```
+Hibernate: ...
+INFO: HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect

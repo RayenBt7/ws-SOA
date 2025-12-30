@@ -1,0 +1,178 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './ClientDetails.css';
+
+const API_BASE_URL = '/tp_revision/exercice/revision'; // Using proxy for development
+
+function ClientDetails({ client, onBack, onEdit, onViewOrders }) {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [client.id]);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/clients/${client.id}/commandes`);
+      setOrders(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch orders');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddOrder = async (orderData) => {
+    try {
+      await axios.post(`${API_BASE_URL}/clients/${client.id}/commandes`, orderData);
+      fetchOrders();
+      setShowOrderForm(false);
+    } catch (err) {
+      setError('Failed to add order');
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="client-details-container">
+      <div className="details-header">
+        <button onClick={onBack} className="back-btn">← Back to Clients</button>
+        <h2>Client Details</h2>
+      </div>
+
+      <div className="client-info-card">
+        <h3>{client.civilite} {client.nom}</h3>
+        <div className="info-grid">
+          <div className="info-item">
+            <strong>CIN:</strong> {client.cin}
+          </div>
+          <div className="info-item">
+            <strong>Email:</strong> {client.email}
+          </div>
+        </div>
+        <button onClick={() => onEdit(client)} className="edit-btn">Edit Client</button>
+      </div>
+
+      <div className="orders-section">
+        <div className="orders-header">
+          <h3>Orders</h3>
+          <button onClick={() => setShowOrderForm(true)} className="add-order-btn">Add Order</button>
+        </div>
+
+        {loading && <div className="loading">Loading orders...</div>}
+        {error && <div className="error">{error}</div>}
+
+        {!loading && !error && (
+          <div className="orders-grid">
+            {orders.length === 0 ? (
+              <div className="no-orders">No orders found for this client.</div>
+            ) : (
+              orders.map(order => (
+                <div key={order.id} className="order-card">
+                  <h4>Order #{order.id}</h4>
+                  <p><strong>Description:</strong> {order.description}</p>
+                  <p><strong>Amount:</strong> ${order.montant}</p>
+                  <p><strong>Total with TVA:</strong> ${order.totalAvecTVA?.toFixed(2)}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {showOrderForm && (
+        <OrderForm
+          onSave={handleAddOrder}
+          onCancel={() => setShowOrderForm(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function OrderForm({ onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    description: '',
+    montant: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.description.trim() || !formData.montant) {
+      setError('All fields are required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await onSave({
+        description: formData.description,
+        montant: parseFloat(formData.montant)
+      });
+      setFormData({ description: '', montant: '' });
+    } catch (err) {
+      setError('Failed to add order');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="order-form-overlay" onClick={onCancel}>
+      <div className="order-form-container" onClick={(e) => e.stopPropagation()}>
+        <h3>Add New Order</h3>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Order description"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Amount</label>
+            <input
+              type="number"
+              name="montant"
+              value={formData.montant}
+              onChange={handleChange}
+              placeholder="Amount"
+              step="0.01"
+              required
+            />
+          </div>
+          <div className="form-actions">
+            <button type="button" onClick={onCancel}>Cancel</button>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Order'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default ClientDetails;

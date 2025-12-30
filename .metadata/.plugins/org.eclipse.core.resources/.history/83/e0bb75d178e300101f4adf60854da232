@@ -1,0 +1,48 @@
+package com.revision.router;
+
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.revision.entities.Client;
+import com.revision.entities.Commande;
+import com.revision.service.ClientServiceImpl;
+import com.revision.service.CommandeServiceImpl;
+
+@Path("/")
+public class RestRouter {
+	ClientServiceImpl cl_s = new ClientServiceImpl();
+	CommandeServiceImpl cmd_s = new CommandeServiceImpl();
+	
+	@Path("/add/client")
+	@POST
+	@Consumes("application/json")
+	@Produces("application/json")
+	public void addClient(Client client) {
+		cl_s.addClient(client);
+	}
+	
+	@Path("/clients/{idClient}/commandes")
+	@POST
+	@Consumes("application/json")
+	public void addCommande(Commande cmd, @PathParam("idClient") Long client_id) {
+		cmd_s.addCommande(cmd, client_id);
+	}
+	
+	@Path("/clients/{idClient}/commandes")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Commande> getCommandes(@PathParam("idClient") Long idClient) {
+		List<Commande> liste = cmd_s.getCommandes(idClient);
+		for(Commande cmd: liste) {
+			cmd.toString();
+		}
+		return liste;
+	}
+}

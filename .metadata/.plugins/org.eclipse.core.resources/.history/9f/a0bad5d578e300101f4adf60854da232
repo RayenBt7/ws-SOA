@@ -1,0 +1,10 @@
+package com.revision.service;
+
+import java.util.Map;
+
+import com.revision.entities.Client;
+
+public interface ClientService {
+	public Map<String, String> addClient(Client cl);
+	public Client getClientById(Long clientId);
+}

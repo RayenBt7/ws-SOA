@@ -1,0 +1,164 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './ClientForm.css';
+
+const API_BASE_URL = '/tp_revision/exercice/revision'; // Using proxy for development
+
+function ClientForm({ client, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    cin: '',
+    nom: '',
+    email: '',
+    civilite: 'MS'
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (client) {
+      setFormData({
+        cin: client.cin || '',
+        nom: client.nom || '',
+        email: client.email || '',
+        civilite: client.civilite || 'MS'
+      });
+    }
+  }, [client]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!formData.cin.trim() || !formData.nom.trim() || !formData.email.trim()) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (!/^\d{8}$/.test(formData.cin)) {
+      setError('CIN must be exactly 8 digits');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const dataToSend = {
+        ...formData,
+        cin: formData.cin.trim(),
+        nom: formData.nom.trim(),
+        email: formData.email.trim()
+      };
+
+      if (client) {
+        // Update existing client
+        await axios.put(`${API_BASE_URL}/persons/${client.id}`, dataToSend);
+      } else {
+        // Create new client
+        await axios.post(`${API_BASE_URL}/persons`, dataToSend);
+      }
+
+      onSave();
+    } catch (err) {
+      console.error('Error saving client:', err);
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Failed to save client');
+      } else {
+        setError('Failed to save client. Please check your connection.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="client-form-overlay" onClick={onCancel}>
+      <div className="client-form-container" onClick={(e) => e.stopPropagation()}>
+        <h2>{client ? 'Edit Client' : 'Add New Client'}</h2>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="cin">CIN</label>
+            <input
+              type="text"
+              id="cin"
+              name="cin"
+              value={formData.cin}
+              onChange={handleChange}
+              placeholder="Enter 8-digit CIN"
+              maxLength="8"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="nom">Name</label>
+            <input
+              type="text"
+              id="nom"
+              name="nom"
+              value={formData.nom}
+              onChange={handleChange}
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email address"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="civilite">Title</label>
+            <select
+              id="civilite"
+              name="civilite"
+              value={formData.civilite}
+              onChange={handleChange}
+              required
+            >
+              <option value="MS">Ms.</option>
+              <option value="Mme">Mrs.</option>
+              <option value="Mlle">Miss</option>
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button type="button" onClick={onCancel} className="cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="save-btn">
+              {loading ? 'Saving...' : (client ? 'Update Client' : 'Add Client')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default ClientForm;

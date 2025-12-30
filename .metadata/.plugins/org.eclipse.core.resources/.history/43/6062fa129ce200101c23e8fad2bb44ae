@@ -1,0 +1,10 @@
+package com.revision.main;
+
+import javax.persistence.Persistence;
+
+public class Test {
+	public static void main(String[] args) {
+		Persistence.createEntityManagerFactory("revision");
+		System.out.println("✅ Connexion OK");
+	}
+}

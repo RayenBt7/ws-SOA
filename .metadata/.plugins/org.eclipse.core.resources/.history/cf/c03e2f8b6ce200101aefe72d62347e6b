@@ -1,0 +1,5 @@
+package com.revision.entities;
+
+public class Client {
+
+}

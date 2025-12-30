@@ -1,0 +1,5 @@
+package com.revision.router;
+
+public class RestRouter {
+
+}

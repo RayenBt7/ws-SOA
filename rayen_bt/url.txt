@@ -1,0 +1,16 @@
+POST
+http://localhost:8080/tp_revision/exercice/revision/add/client
+{
+    "cin": "11111111",
+    "nom": "----"
+}
+
+POST
+http://localhost:8080/tp_revision/exercice/revision/clients/2/commandes
+{
+    "description": "test21", 
+    "montant": 10.14
+}
+
+GET
+http://localhost:8080/tp_revision/exercice/revision/clients/2/commandes

@@ -1,0 +1,105 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './ClientList.css';
+
+const API_BASE_URL = '/tp_revision/exercice/revision'; // Using proxy for development
+
+function ClientList({ onEdit, onViewDetails, onAddNew }) {
+  const [clients, setClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/persons`);
+      setClients(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch clients - Backend server not running');
+      // Show mock data so user can see the UI
+      setClients([
+        { id: 1, cin: '12345678', nom: 'Dupont', email: 'dupont@example.com', civilite: 'M' },
+        { id: 2, cin: '87654321', nom: 'Martin', email: 'martin@example.com', civilite: 'Mme' },
+        { id: 3, cin: '11223344', nom: 'Dubois', email: 'dubois@example.com', civilite: 'Mlle' }
+      ]);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      fetchClients();
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/persons/search/${searchTerm}`);
+      setClients(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to search clients');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this client?')) {
+      try {
+        await axios.delete(`${API_BASE_URL}/persons/${id}`);
+        fetchClients();
+      } catch (err) {
+        setError('Failed to delete client');
+        console.error(err);
+      }
+    }
+  };
+
+  if (loading) return <div className="loading">Loading clients...</div>;
+  if (error) return <div className="error">{error}</div>;
+
+  return (
+    <div className="client-list-container">
+      <div className="header-section">
+        <h2>Clients Management</h2>
+        <button onClick={onAddNew} className="add-client-btn">Add New Client</button>
+      </div>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        />
+        <button onClick={handleSearch}>Search</button>
+        <button onClick={() => setSearchTerm('') || fetchClients()}>Clear</button>
+      </div>
+      <div className="client-grid">
+        {clients.map(client => (
+          <div key={client.id} className="client-card">
+            <h3>{client.civilite} {client.nom}</h3>
+            <p>Email: {client.email}</p>
+            <p>CIN: {client.cin}</p>
+            <div className="card-actions">
+              <button onClick={() => onViewDetails(client)}>View Details</button>
+              <button onClick={() => onEdit(client)}>Edit</button>
+              <button onClick={() => handleDelete(client.id)} className="delete-btn">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default ClientList;

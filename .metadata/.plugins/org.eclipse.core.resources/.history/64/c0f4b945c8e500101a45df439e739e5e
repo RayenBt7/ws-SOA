@@ -1,0 +1,126 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './CommandeForm.css';
+
+const API_BASE_URL = '/tp_revision/exercice/revision'; // Using proxy for development
+
+function CommandeForm({ commande, clientId, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    description: '',
+    montant: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (commande) {
+      setFormData({
+        description: commande.description || '',
+        montant: commande.montant || ''
+      });
+    }
+  }, [commande]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!formData.description.trim() || !formData.montant) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (parseFloat(formData.montant) <= 0) {
+      setError('Amount must be greater than 0');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const dataToSend = {
+        description: formData.description.trim(),
+        montant: parseFloat(formData.montant)
+      };
+
+      if (commande) {
+        // Update existing commande
+        await axios.put(`${API_BASE_URL}/commandes/${commande.id}`, dataToSend);
+      } else {
+        // Create new commande
+        await axios.post(`${API_BASE_URL}/clients/${clientId}/commandes`, dataToSend);
+      }
+
+      onSave();
+    } catch (err) {
+      console.error('Error saving order:', err);
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Failed to save order');
+      } else {
+        setError('Failed to save order. Please check your connection.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="commande-form-overlay" onClick={onCancel}>
+      <div className="commande-form-container" onClick={(e) => e.stopPropagation()}>
+        <h3>{commande ? 'Edit Order' : 'Add New Order'}</h3>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Enter order description"
+              rows="4"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="montant">Amount</label>
+            <input
+              type="number"
+              id="montant"
+              name="montant"
+              value={formData.montant}
+              onChange={handleChange}
+              placeholder="Enter amount"
+              step="0.01"
+              min="0.01"
+              required
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="button" onClick={onCancel} className="cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="save-btn">
+              {loading ? 'Saving...' : (commande ? 'Update Order' : 'Add Order')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default CommandeForm;

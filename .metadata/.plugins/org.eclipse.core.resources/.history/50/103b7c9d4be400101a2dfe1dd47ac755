@@ -1,0 +1,66 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+    const baseUrl = 'http://localhost:8080/tp_revision';
+
+    // ADD CLIENT
+    document.getElementById('client-form').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const client = {
+            cin: document.getElementById('cin').value,
+            nom: document.getElementById('nom').value,
+            email: document.getElementById('email').value,
+            civilite: document.getElementById('civilite').value
+        };
+
+        fetch(`${baseUrl}/exercice/revision/add/client`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(client)
+        })
+        .then(res => {
+            if (res.ok) alert("Client added successfully");
+            else alert("Error adding client");
+        });
+    });
+
+    // ADD ORDER
+    document.getElementById('order-form').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const clientId = document.getElementById('clientId').value;
+
+        const order = {
+            description: document.getElementById('description').value,
+            montant: parseFloat(document.getElementById('montant').value)
+        };
+
+        fetch(`${baseUrl}/exercice/revision/clients/${clientId}/commandes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+        })
+        .then(res => {
+            if (res.ok) alert("Order added successfully");
+            else alert("Error adding order");
+        });
+    });
+
+    // LIST PERSONS
+    document.getElementById('listPersons').addEventListener('click', () => {
+        fetch(`${baseUrl}/exercice/revision/persons`)
+        .then(res => res.json())
+        .then(data => {
+            const div = document.getElementById('persons');
+            div.innerHTML = '';
+            data.forEach(p => {
+                div.innerHTML += `
+                    <p>
+                        ${p.id} - ${p.nom} - ${p.email}
+                    </p>
+                `;
+            });
+        });
+    });
+
+});

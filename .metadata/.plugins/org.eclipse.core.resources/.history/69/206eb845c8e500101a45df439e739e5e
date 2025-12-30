@@ -1,0 +1,97 @@
+import React, { useState } from 'react';
+import ClientList from './ClientList';
+import ClientForm from './ClientForm';
+import ClientDetails from './ClientDetails';
+import CommandeList from './CommandeList';
+import './App.css';
+
+function App() {
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'details', 'form', 'orders'
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [editingClient, setEditingClient] = useState(null);
+
+  const handleViewDetails = (client) => {
+    setSelectedClient(client);
+    setCurrentView('details');
+  };
+
+  const handleViewOrders = (client) => {
+    setSelectedClient(client);
+    setCurrentView('orders');
+  };
+
+  const handleEdit = (client) => {
+    setEditingClient(client);
+    setCurrentView('form');
+  };
+
+  const handleAddNew = () => {
+    setEditingClient(null);
+    setCurrentView('form');
+  };
+
+  const handleSave = () => {
+    setCurrentView('list');
+    setSelectedClient(null);
+    setEditingClient(null);
+  };
+
+  const handleCancel = () => {
+    setCurrentView('list');
+    setSelectedClient(null);
+    setEditingClient(null);
+  };
+
+  const handleBack = () => {
+    setCurrentView('list');
+    setSelectedClient(null);
+  };
+
+  const handleBackToDetails = () => {
+    setCurrentView('details');
+  };
+
+  return (
+    <div className="App">
+      <header className="app-header">
+        <h1>Client Management System</h1>
+      </header>
+
+      <main className="app-main">
+        {currentView === 'list' && (
+          <ClientList
+            onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
+            onAddNew={handleAddNew}
+          />
+        )}
+
+        {currentView === 'details' && selectedClient && (
+          <ClientDetails
+            client={selectedClient}
+            onBack={handleBack}
+            onEdit={handleEdit}
+            onViewOrders={handleViewOrders}
+          />
+        )}
+
+        {currentView === 'orders' && selectedClient && (
+          <CommandeList
+            clientId={selectedClient.id}
+            onBack={handleBackToDetails}
+          />
+        )}
+
+        {currentView === 'form' && (
+          <ClientForm
+            client={editingClient}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;
