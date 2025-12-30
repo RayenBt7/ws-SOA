@@ -1,0 +1,21 @@
+# Rayen BT Project
+
+This is a Java-based web application project using Maven, JPA, and REST services.
+
+## Structure
+- `src/`: Source code
+- `WebContent/`: Web resources
+- `pom.xml`: Maven configuration
+
+## Getting Started
+1. Import the project into your IDE.
+2. Run `mvn clean install` to build.
+3. Deploy to Tomcat server.
+
+## Entities
+- Client
+- Commande
+
+## Services
+- ClientService
+- CommandeService
