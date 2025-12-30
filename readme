@@ -2,15 +2,19 @@
 
 This is a Java-based web application project using Maven, JPA, and REST services.
 
-## Structure
-- `src/`: Source code
-- `WebContent/`: Web resources
-- `pom.xml`: Maven configuration
+## Technologies Used
+### Backend
+- Java 8
+- Maven
+- JAX-RS (REST services)
+- JPA (Hibernate)
+- Apache Tomcat 9
+- MySQL
 
-## Getting Started
-1. Import the project into your IDE.
-2. Run `mvn clean install` to build.
-3. Deploy to Tomcat server.
+### Frontend
+- HTML
+- CSS
+- JavaScript   
 
 ## Entities
 - Client
@@ -19,3 +23,23 @@ This is a Java-based web application project using Maven, JPA, and REST services
 ## Services
 - ClientService
 - CommandeService
+
+# Frontend
+A simple frontend is implemented using HTML, CSS, and JavaScript.
+It allows:
+- Displaying the list of clients
+- Adding a new client
+- Managing commandes
+- Communicating with the backend via REST APIs (AJAX / Fetch API)
+
+## Prerequisites
+- JDK 8
+- Maven
+- Apache Tomcat 9
+- MySQL (docker)
+
+ ## Getting Started
+1. Import the project into your IDE.
+2. Run `mvn clean install` to build.
+3. Deploy to Tomcat server.
+
